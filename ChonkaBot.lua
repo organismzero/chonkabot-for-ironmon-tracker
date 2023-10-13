@@ -1,5 +1,6 @@
 local function ChonkaBot()
-	local self = {}
+    local json = require("json")
+    local self = {}
 
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
 	self.name = "ChonkaBot"
@@ -7,6 +8,8 @@ local function ChonkaBot()
 	self.description = "An extension for Ironmon Tracker to provide information to ChonkaBot for stream integration."
 	self.version = "1.0"
 	self.url = "https://github.com/organismzero/chonkabot-for-ironmon-tracker" -- Remove or set to nil if no host website available for this extension
+
+	self.apiEndpoint = "https://chonka.automationbot.app/api/ironmon-tracker"
 
 	-- Executed when the user clicks the "Options" button while viewing the extension details within the Tracker's UI
 	-- Remove this function if you choose not to include a way for the user to configure options for your extension
@@ -64,6 +67,22 @@ local function ChonkaBot()
 	-- Executed after a new battle begins (wild or trainer), and only once per battle
 	function self.afterBattleBegins()
 		-- [ADD CODE HERE]
+        local payload, err = json.encode({
+            attempts = Main.currentSeed
+        })
+        if err then error(err) end
+
+        local resp, err = comm.httpPost(self.apiEndpoint .. "", payload)
+        if err then error(err) end
+
+		if resp ~= nil then
+			local attemptsWrite = io.open("chonkabot-response.json", "w")
+			if attemptsWrite ~= nil then
+				local output = resp
+				attemptsWrite:write(output)
+				attemptsWrite:close()
+			end
+		end
 	end
 
 	-- Executed after a battle ends, and only once per battle
