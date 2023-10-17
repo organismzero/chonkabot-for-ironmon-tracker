@@ -2,6 +2,8 @@ local function ChonkaBot()
     local json = require("json")
     local self = {}
 
+	-- { name = "DataPoints", filepath = FileManager.Folders.DataCode .. FileManager.slash .. "DataPoints.lua", },
+
 	-- Define descriptive attributes of the custom extension that are displayed on the Tracker settings
 	self.name = "ChonkaBot"
 	self.author = "OrganismZero"
@@ -36,6 +38,22 @@ local function ChonkaBot()
 	-- Executed only once: When the extension is enabled by the user, and/or when the Tracker first starts up, after it loads all other required files and code
 	function self.startup()
 		-- [ADD CODE HERE]
+        local payload, err = json.encode({
+            attempts = Main.currentSeed
+        })
+        if err then error(err) end
+
+        local resp, err = comm.httpPost(self.apiEndpoint .. "", payload)
+        if err then error(err) end
+
+		-- if resp ~= nil then
+		-- 	local attemptsWrite = io.open("chonkabot-response.json", "w")
+		-- 	if attemptsWrite ~= nil then
+		-- 		local output = resp
+		-- 		attemptsWrite:write(output)
+		-- 		attemptsWrite:close()
+		-- 	end
+		-- end
 	end
 
 	-- Executed only once: When the extension is disabled by the user, necessary to undo any customizations, if able
@@ -67,27 +85,38 @@ local function ChonkaBot()
 	-- Executed after a new battle begins (wild or trainer), and only once per battle
 	function self.afterBattleBegins()
 		-- [ADD CODE HERE]
-        local payload, err = json.encode({
-            attempts = Main.currentSeed
-        })
-        if err then error(err) end
-
-        local resp, err = comm.httpPost(self.apiEndpoint .. "", payload)
-        if err then error(err) end
-
-		if resp ~= nil then
-			local attemptsWrite = io.open("chonkabot-response.json", "w")
-			if attemptsWrite ~= nil then
-				local output = resp
-				attemptsWrite:write(output)
-				attemptsWrite:close()
-			end
-		end
 	end
 
 	-- Executed after a battle ends, and only once per battle
 	function self.afterBattleEnds()
 		-- [ADD CODE HERE]
+		-- local info = {}
+		-- for _, statPair in ipairs(StatsScreen.StatTables or {}) do
+		-- 	if type(statPair.getText) == "function" and type(statPair.getValue) == "function" then
+		-- 		local statValue = statPair.getValue() or 0
+		-- 		if type(statValue) == "number" then
+		-- 			statValue = Utils.formatNumberWithCommas(statValue)
+		-- 		end
+		-- 		table.insert(info, string.format("%s: %s", statPair:getText(), statValue))
+		-- 	end
+		-- end
+
+		-- local payload, err = json.encode({
+		-- 	gameStats = info
+		-- })
+		-- if err then error(err) end
+
+		-- local resp, err = comm.httpPost(self.apiEndpoint .. "", payload)
+		-- if err then error(err) end
+
+		-- if resp ~= nil then
+		-- 	local attemptsWrite = io.open("chonkabot-response.json", "w")
+		-- 	if attemptsWrite ~= nil then
+		-- 		local output = resp
+		-- 		attemptsWrite:write(output)
+		-- 		attemptsWrite:close()
+		-- 	end
+		-- end
 	end
 
 	return self
